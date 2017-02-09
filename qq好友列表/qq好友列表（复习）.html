@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+ul,li{
+	margin:0;
+	padding:0;
+	list-style: none;
+}
+body {
+	width: 1000px;
+	height: 800px;
+	background: url(img/bg.png) no-repeat center center;
+	margin: 0 auto;
+}
+
+.wrap {
+	width: 384px;
+	height: 707px;
+	background: url(img/bg1.png) no-repeat center center;
+	margin: 0 auto;
+	position: relative;
+}
+
+.list {
+	width: 280px;
+	position: absolute;
+	left: 46px;
+	top: 64px;
+}
+.list h2 {
+	height: 48px;
+	font: 14px/48px arial;
+	color: #fff;
+	background: rgba(0,0,0,.8);
+	box-sizing: border-box;
+	padding-left: 10px;
+	margin-top: 10px;
+}
+.list h2:nth-of-type(1){
+	margin: 0;
+}
+.list h2.active {
+	background: rgba(221,84,111,.8)
+}
+.list span {
+	width: 0;
+	height: 0;
+	display: inline-block;
+	border: 6px dashed rgba(0,0,0,0);
+	border-left: 6px solid rgba(255,255,255,1);
+	margin-right: 10px;
+	position: relative;
+	top: 1px;
+}
+.list span.active {
+	width: 0;
+	height: 0;
+	display: inline-block;
+	border: 6px dashed rgba(0,0,0,0);
+	border-top: 6px solid rgba(255,255,255,1);
+	position: relative;
+	top: 4px;
+}
+.list ul {
+	background: #000000;
+	color: #fff;
+	display: none;
+}
+.list li {
+	height: 40px;
+	font: 14px/40px "微软雅黑";
+	box-sizing: border-box;
+	padding-left: 34px;
+}
+.list li.active {
+	background: rgba(255,255,255,.4);
+}
+
+.list li.selected {
+	background: rgba(221,84,111,.6);
+}
+		</style>
+		<script>
+			window.onload=function(){
+				var h2s = document.querySelectorAll('h2');
+				var uls = document.querySelectorAll('ul');
+				var spans = document.querySelectorAll('.list span');
+				
+//需求1:点击h2:(1)让他的颜色变成粉色;(2)小三角倒下来;(3)对应的ul显示出来;--------------------------------------------------------------------------
+
+//最原始的想法----------------------
+				//第一个h2:
+//				h2s[0].onclick=function(){
+//					h2s[0].className = 'active';
+//				}
+//				//第二个h2:
+//				h2s[1].onclick=function(){
+//					h2s[1].className = 'active';
+//				}
+//				//第三个h2：
+//				h2s[2].onclick=function(){
+//					h2s[2].className = 'active';
+//				}
+//如果有100个分组（h2）怎么办呢-------------------把数字替换成一个变量，不用人工去换数。
+//				h2s[i].onclick=function(){
+//					h2s[i].className='active';
+//				}
+				//但是还缺少一个给i自动换数的机制；操纵一组数，想到for循环；
+//				for(var i=0;i<h2s.length;i++){
+//					                          //错写成了 点击事件里包着for循环。
+//					h2s[i].onclick=function(){
+//						this.className='active';//在这里i已经在for里跑完了，this代表当前被点击h2；
+//					}
+//				}
+//现在的效果是 点击之后都变粉色了，除他自身之外，还需要控制两个东西：怎么能让他对应号的那个小三角倒下来，对应的ul显示出来
+//给每个h2加个自定义属性，属性值为他们的序号，这样别人就能用他的序号了，并且能保证一一对应，相当于跟他们的h2共享序号。
+//				for(var i=0;i<h2s.length;i++){
+//					h2s[i].index = i;
+//					h2s[i].onclick = function(){
+//						this.className='active';
+//						//我想写成：uls[this].style.display='block'；
+//						//spans[this].className='active';
+//						//但是this代表h2s[1]、h2s[2]、h2s[3] this.index才代表序号。
+//						uls[this.index].style.display='block';
+//						spans[this.index].className='active';
+//					}
+//				}
+//现在都展开了，怎么收回去呢---------用个什么东西给他标记 一下，点击时再判断是不是被点过的，是被点过的，再点一次就让他收回去；
+				//我想这样写的，但是他不知道哪个点过哪个没点过，var flag=true;//代表可以展开（没被点过）
+					for(var i=0;i<h2s.length;i++){
+						h2s[i].index = i;
+						h2s[i].flag = true;//每个h2都需要一个开关，true代表可以展开（没被点过）；
+						h2s[i].onclick = function(){
+							if(this.flag){
+								this.className='active';
+								uls[this.index].style.display='block';
+								spans[this.index].className='active';
+								//错误的写法flag=false;
+								this.flag=false;
+							}else{
+								this.className='';
+								uls[this.index].style.display='';
+								spans[this.index].className='';
+								//错误的写法flag=true;
+								this.flag=true;
+							}
+						
+						}
+					}
+					flag=false;
+				
+//需求2：鼠标点击li，li变成粉色	---------------------------------------------------------------------------分割线
+			//点击变色，再次点击取消颜色	
+//			var lis=document.querySelectorAll('li');
+//			for(var i=0;i<lis.length;i++){
+//				lis[i].flag=true;//一样需要判断一下是否被点过,给每个li加个标记
+//				lis[i].onclick=function(){
+//					if(this.flag){
+//						this.className='active';
+//						this.flag=false;
+//					}else{
+//						this.className='';
+//						this.flag=true;
+//					}					
+//				}
+//			}
+		//但是发现做到这里，自带ctrl效果，点击的时候应该清空上一个，再添加样式，
+			var lis=document.querySelectorAll('li');
+			var prev = lis[0];//定义一个上一个；默认上一个是第0个；
+			for(var i=0;i<lis.length;i++){
+				lis[i].flag=true;//true代表可以被点击,(未被选中)
+				lis[i].selected = false;//给每个i加个自定义属性，true表示已经被选中的，false表示未被选中；
+				lis[i].onclick=function(){
+					
+					if(this.flag){
+						prev.className='';//清空上一个这句话放在这里，只有再需要被点击的时候才需要清空上一个。
+						prev.flag=true;//犯错的地方；
+						this.className='selected';
+						this.flag=false;
+						prev= this  //让这个被点击的，成为“上一个”	
+						this.selected=true;
+					}else{
+						this.className='';
+						this.flag=true;
+						this.selected=false;
+					}
+				}
+			}
+		//!!!!!!但是出现了一个问题：点击曾经被选中过的当前非选中的li时，曾会先清掉上一个，再选中当前，分两步来的。应该同时进行。
+		//原因，上一个的开关没给他打开，上一个的className被清掉之后，上一个变成了可以被点击的，需要给他变成flag=true；
+		
+//需求3：鼠标移入变成灰色（需求2没被选中的情况下）-----------------------------------------
+		//去需求2里标记一下被选中的,怎样给每个li都标注 选中和未选中？给他们添加一个自定义属性；
+		for(var i =0;i<lis.length;i++){
+			lis[i].onmouseover = function(){
+				if(this.selected==false){
+					this.className='active';
+				}
+			}
+			lis[i].onmouseout = function(){
+				if(this.selected==false){//!!!感觉鼠标移出 与选中没被选中无关，和移入没移入有关，为什么要拿这个当条件。
+										//老师说：选中了就没有hover效果了哦，
+					this.className='';
+				}
+			}
+		}
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			}
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+		<div class="list">
+			<h2><span></span>我的好友</h2>
+			<ul>
+				<li>小佳Love</li>
+				<li>从来就是这么正经</li>
+				<li>leo是个胖子</li>
+				<li>momo不是陌陌</li>
+			</ul>
+			<h2><span></span>企业好友</h2>
+			<ul>
+				<li>习近平</li>
+				<li>普京</li>
+				<li>奥巴马</li>
+			</ul>
+			<h2><span></span>黑名单</h2>
+			<ul>
+				<li>安倍</li>
+				<li>杜特尔特</li>
+			</ul>
+		</div>
+	</div>
+	</body>
+</html>
