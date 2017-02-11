@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>运动轮播图</title>
+		<style>
+			section{
+				width:1000px;
+				height:800px;
+				background:url(img/bg.png);
+				overflow:hidden;
+			}
+			.pic_section{
+				position:relative;
+				width:530px;
+				height:350px;
+				margin-top:160px;
+				margin-left:280px;
+			}
+			
+			.imgs img{
+				position:absolute;/*这里用定位是为了让图片叠起来*/
+				left:0;
+				top:0;
+				opacity: 0;
+			}
+			.imgs img.active{
+				opacity:1;
+			}
+			.prev{
+				position:absolute;
+				left:0;
+				top:50%;
+				width:25px;
+				height:46px;
+				background:url(img/prev.png);
+				display:none;
+			}
+			.next{
+				position:absolute;
+				right:0;
+				top:50%;
+				width:25px;
+				height:46px;
+				background:url(img/next.png);
+				display:none;
+			}
+			nav{
+				position:absolute;
+				left:35%;
+				bottom:-80px;
+			}
+			nav span{
+				float:left;
+				margin-right:10px;
+				width:18px;
+				height:18px;
+				border-radius:9px;
+				background-color:paleturquoise;
+			}
+			nav span.active{
+				background-color:yellow;
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<div class="pic_section">
+				<div class="imgs">
+					<img class="active" src="img/1.png"/>
+					<img src="img/2.png"/>
+					<img src="img/3.png"/>
+					<img src="img/4.png"/>
+					<img src="img/5.png"/>					
+				</div>
+				
+				<nav>
+					<span class="active"></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</nav>
+				
+				<div class="prev"></div>
+				<div class="next"></div>
+								
+			</div>		
+		</section>
+	
+		<script src='js/tools.js'></script>
+		<script>
+			var section = document.querySelector('.pic_section');
+			var prev = document.querySelector('.prev');
+			var next = document.querySelector('.next');
+			var imgs = document.querySelectorAll('.imgs img');
+			var spans = document.querySelectorAll('nav span');
+			
+			
+//当鼠标移入图片区域(最外层父容器)的时候，prev和next显示，移出隐藏---(包括鼠标移入暂停)----可以用css函数表示----------------				
+			section.onmouseover = function(){
+//				prev.style.display='block';
+//				next.style.display='block';
+				css(prev, 'display', 'block');
+      			css(next, 'display', 'block');
+      			clearInterval(timer);
+			}
+			section.onmouseout = function(){
+				timer = setInterval(function(){
+				index = index<len-1?++index:0;//自动执行鼠标点击next的功能;
+				mTween(imgs[index],{opacity:1},70,'linear');
+				mTween(imgs[last],{opacity:0},70,'linear');
+				spans[index].className='active';
+				spans[last].className='';
+				last = index;
+			},5000)
+//				prev.style.display='';
+//				prev.style.display='';
+ 				css(prev, 'display', '');
+     			css(next, 'display', '');
+			}
+				
+//点击prev和next的时候，切换图片，图片切换的过程opacity属性运动实现渐变效果-------------
+			
+			var index = 0, len = imgs.length,last= 0,move = true ;
+			next.onclick = function(){
+				 if(imgs[last].timer){//如果上一张的timer还没执行完，那么他不是null，！null==true；所以进入到if，执行return，不再进行下面的函数；
+   				 return;
+  			}
+				 //如果上一张的timer执行完毕，即为null的时候，就可以执行以下函数；
+//我想这样写：		imgs[i].style.opacity='1'; 可是i是几呢？--可以声明一个变量 index=0；
+//				上一张.style.opacity='0';在这需要声明一个变量代表上一张。
+				index = index < len - 1 ? ++index : 0;//区分是不是最后一张；
+				//index是小于最后一张的吗？是就++index；不是就让index=0；
+//				imgs[index].style.opacity='1';
+///				imgs[last].style.opacity='0';//但是这种是突然变换，没有变化的渐变特效，需要用到MTWEEN；
+				mTween(imgs[index],{opacity:1},50,'linear');
+				mTween(imgs[last],{opacity:0},50,'linear');
+				//相应的选项点 关联一下：
+				spans[index].className='active';
+				spans[last].className='';
+				last = index;
+				}					
+			
+
+			
+			prev.onclick = function(){
+				 if(imgs[last].timer){
+        			return;
+      			}
+					index = index > 0? --index:len-1;
+					mTween(imgs[index],{opacity:1},70,'linear');
+					mTween(imgs[last],{opacity:0},70,'linear');
+					spans[index].className='active';
+					spans[last].className='';
+					last = index;
+				}
+							
+			
+//选项卡功能（点击选项点，图片跳转）---------操纵一组元素用到for循环-----------------------------
+//			写错了，又声明了个“上一个” pre = 0;造成和上一个需求没有关联了，应该还用last，“上一个”不要变；
+			for(var i = 0;i<spans.length;i++){
+				spans[i].idx = i;				
+				spans[i].onclick = function(){
+					spans[last].className = '';
+					mTween(imgs[last],{opacity:0},70,'linear');
+					
+					this.className='active';
+					mTween(imgs[this.idx],{opacity:1},70,'linear');					
+					last = this.idx;
+					
+				//以上是单纯选项卡，但是怎样让spans和轮播图、prev、next关联起来？（例如：此时轮播图是01234在自己循环，但是不会在点击spans之后接着spans的继续轮播）
+				//spans的点击事件完成之后需要把值赋给全局变量index；让全局的index 变成点击span之后的。
+					index = this.idx;
+				}
+			}
+//利用定时器自动轮播---------------------------------------------------------
+			timer = setInterval(function(){
+				
+					index = index<len-1?++index:0;//自动执行鼠标点击next的功能;
+					mTween(imgs[index],{opacity:1},70,'linear');
+					mTween(imgs[last],{opacity:0},70,'linear');
+					spans[index].className='active';
+					spans[last].className='';
+					last = index;
+			},5000)
+//一开始把鼠标移入轮播图暂停单独写在这里，并且var imgWrap = imgs的父级，让他onmouseover，会造成：鼠标移入next和prev轮播图仍然继续，如果恰巧碰到点击和轮播同时进行，就会翻过2张图片
+//但是父级改成section（总父级）之后 就会和上面的prev、next显示或者隐藏 有冲突；把两者放一起就可以；
+//			section.onmouseover = function(){
+//			}
+//			section.onmouseout = function(){//鼠标移出怎样继续?把之前的定时器复制过来就好；
+//				timer = setInterval(function(){
+//				index = index<len-1?++index:0;//自动执行鼠标点击next的功能;
+//				mTween(imgs[index],{opacity:1},70,'linear');
+//				mTween(imgs[last],{opacity:0},70,'linear');
+//				spans[index].className='active';
+//				spans[last].className='';
+//				last = index;
+//			},5000)
+//			}
+//			
+//“防乱点”功能---------------------------------------------------------------------------------------------
+//自动轮播的定时器还没走完，就点了很多次，可能会造成图片混乱（图片还没展示全，处于半透明度，就更换了下一张。快速点击下看到的景象就是所有的图片都是半透明的），需要有一个条件约束它，定时器没走完，不能点击。
+//toos里面设定了 obj.timer = null; t==d（运动完成之后），使obj.timer就为空，在每次点击的时候添加判断条件，↑126行 150行
+
+			
+			
+			
+			
+			
+		</script>			
+	</body>
+</html>
