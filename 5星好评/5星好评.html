@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>5星好评</title>
+		<style>
+			.wrap {
+				width: 764px;
+				height: 800px;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				margin: -400px 0 0 -382px;
+				background: url(img/bg.jpg) no-repeat center center;
+				background-size: cover;
+				overflow: hidden;
+			}
+			
+			.wrap .baidu {
+				width: 460px;
+				height: 200px;
+				background: #FFF;
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				margin: auto;
+				border-radius: 5px;
+			}
+			
+			.wrap .caption {
+				width: 100%;
+				height: 70px;
+				position: relative;
+			}
+			
+			.wrap .caption h1 {
+				position: absolute;
+				background: url(img/logo.jpg) no-repeat center center;
+				background-size: cover;
+				width: 124px;
+				height: 31px;
+				top: 20px;
+				left: 108px;
+			}
+			
+			.wrap .caption span {
+				position: absolute;
+				border-left: 1px solid #000;
+				width: 100px;
+				height: 22px;
+				font: 18px/22px "微软雅黑";
+				padding: 0 8px;
+				box-sizing: border-box;
+				left: 248px;
+				top: 25px;
+				font-weight: bold;
+			}
+			
+			.wrap .context {
+				width: 100%;
+				height: 72px;
+				overflow: hidden;
+				position: relative;
+			}
+			
+			.wrap .stars {
+				width: 200px;
+				height: 33px;
+				position: absolute;
+				text-align: center;
+				left: 88px;
+				top: 10px;
+			}
+			
+			.wrap .stars span {
+				font-size: 33px;
+				line-height: 33px;
+				color: #ccc;
+				cursor: pointer;
+			}
+			.wrap .stars span.active{
+				color:orangered;
+			}
+			
+			.wrap .info {
+				display: none;
+				width: 60px;
+				height: 30px;
+				text-align: center;
+				font: 14px/30px "微软雅黑";
+				position: absolute;
+				left: 310px;
+				top: 12px;
+				background: #e15671;
+				border-radius: 6px;
+				color: #FFF;
+			}
+			
+			.wrap .tips {
+				width: 100%;
+				height: 58px;
+				background: #E15671;
+				text-align: center;
+				font: 18px/58px "微软雅黑";
+				cursor: default;
+				color: #FFFFFF;
+				border-radius: 0 0 5px 5px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="wrap">
+			<div class="baidu">
+				<div class="caption">
+					<h1></h1>
+					<span>总体评价</span>
+				</div>
+				<div class="context">
+					<div class="stars">
+						<span>☆</span>
+						<span>☆</span>
+						<span>☆</span>
+						<span>☆</span>
+						<span>☆</span>
+					</div>
+					<div class="info"></div>
+				</div>
+				<div class="tips">
+					小提示：点击星星就能打分
+				</div>
+			</div>
+		</div>
+		
+		
+		<script>
+//需求1：鼠标移入第几个span，就让几个星星变色，让提示框显示；移出再变回初始。		
+		var stars = document.querySelectorAll('.stars span');
+		var info = document.querySelector('.info');
+		var arr = ['1星','2星','3星','4星','5星'];
+		
+		var n=-1;//n被点击的取值是01234，-1表示没被点击；
+//		for(var i =0;i<stars.length;i++){
+//			stars[i].onmouseover = function(){
+//				this.innerHTML = '★';
+//				this.className='active';
+//			}
+//		}
+		//此时只做到了，移入哪个让哪个变色，怎样做到移入第几个，就让几个星星变色，可见两个“几”，是有关联的。
+		for(var i =0;i<stars.length;i++){//操纵每个星星，给他们添加点击事件
+			stars[i].index = i;
+//鼠标移入事件---------------------------------------------------------------			
+			stars[i].onmouseover = function() {
+				for(var i = 0; i < stars.length; i++) {
+					//在每个星星的点击事件里，操纵每个星星，让他们变色；
+					//分情况，其他星星的序号，比当前移入的星星的序号小，那么变色；
+					if(stars[i].index <= this.index) {
+						stars[i].innerHTML = '★';
+						stars[i].className = 'active';
+					}else{//解決：移入后面的可以重新打分，移入前面的 无法改变的问题；
+						//如果不加else，比点击的星星大的情况，就没管。例如：如果点击了第三个星星，onmouseout之后，前三个星星就变成
+						//★，此时再鼠标移入第二颗星星，第三个星星不被清空；
+						stars[i].innerHTML = '☆';
+						stars[i].className = '';
+					}
+				}
+				info.style.display='block';
+				info.innerHTML = arr[this.index];
+			}//加载完成，第一个for循环就跑完了，只做了给每个星星加个自定义属性的事情；
+			//函数内的for循环，什么时候调用什么时候执行，执行的时候进入判断条件；
+//当鼠标移出的时候 回复原状------------------------------------------------------			
+			stars[i].onmouseout = function(){
+				for(var i=0;i<stars.length;i++){
+					if(i<=n){
+						stars[i].innerHTML='★';
+						stars[i].className='active';
+					}else{
+						stars[i].innerHTML='☆';
+						stars[i].className = '';
+					}
+					
+				}
+			}
+//鼠标点击事件-------------------------------------------------------------
+			stars[i].onclick = function(){
+				for(var i=0;i<stars.length;i++){
+					if(stars[i].index<=this.index){
+						stars[i].innerHTML='★';
+						stars[i].className='active';
+					}	
+				}
+				n = this.index;
+			}
+//点击后的------问题---------移出需要记录当前点击的东西不被清除；
+//“记录当前点击的”需要存储变量，声明n 把当前的 this.index存入n内，然后给mouseout添加条件，拿mousout的i
+//逐个跟n比，比n小的 继续有样式，比n大的  就清空；
+	
+//点击后的------问题---------移入后面的可以重新打分，移入前面的 无法改变；（160行）；
+		}
+		
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>
+	</body>
+
+</html>
