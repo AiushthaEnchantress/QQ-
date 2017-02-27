@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			section{
+				width:1200px;
+				height:700px;
+				background:url(img/bg.png);
+				margin:0 auto;
+				overflow:hidden;
+			}
+			.box{
+				width:900px;
+				height:440px;
+				background-color:rgba(105,88,200,0.7);
+				border-radius:5px;
+				margin:150px auto;
+				display:flex;
+				justify-content: space-around;
+				overflow:hidden;
+			}
+			textarea{
+				width:260px;
+				height:360px;
+				border:none;
+				margin-top:20px;
+				border-radius:5px;
+				padding:20px;
+				color:purple;
+				font:14px/26px "微软雅黑";
+			}
+			.mid{
+				width:120px;
+				height:130px;
+				margin-top:140px;
+			}
+			button{
+				width:120px;
+				height:90px;
+				border:none;
+				border-radius: 5px;
+				background-color:paleturquoise;
+				color:#ffffff;
+				font:20px/90px "微软雅黑";
+			}
+			.numb{
+				margin-top:10px;
+				color:powderblue;
+				font:16px/30px arial;
+				text-align: center;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<section>
+			<div class="box">
+				<textarea></textarea>
+				<div class="mid">
+					<button>把文字右移</button>
+					<div class="numb">
+						<span class="numb_1">0</span>
+						<i>/</i>
+						<span class="numb_2">0</span>
+					</div>
+				</div>
+				<textarea></textarea>
+			</div>
+		</section>
+		<script>
+			var btn = document.querySelector('button');
+			var num1 = document.querySelector('.numb_1');
+			var num2 = document.querySelector('.numb_2');
+			var leftText = document.querySelector('.box textarea:nth-of-type(1)');
+			var rightText = document.querySelector('.box textarea:nth-of-type(2)');
+			
+			
+	
+			//添加按钮的点击事件
+			btn.onclick = function(){
+				if(leftText.value ==''){
+					alert('看什么看！！');
+				}
+				//左边没文字了就要关掉定时器；				
+				//加个定时器 让他自动转过去	
+				rightText.value='';//右边的需要先清空上次的;
+				num2.innerHTML = leftText.value.length;//左边有几个字符，把字符数放在num2里。
+				var timer = setInterval(function(){
+				//出现了问题：第二次输入文字的时候，还没点击 就自己去了右边；//if要放在定时器里，而不是点击的时候，定时器执行的时候再进行判断；
+					if(leftText.value ==''){
+						clearInterval(timer);
+					}
+					//把左边第一个字符移动到右边，并且需要加上上次的inner HTML 所以是+=
+					rightText.value += leftText.value.substr(0,1);
+					//让左侧内容显示除了第一个以外的字符；
+					leftText.value=leftText.value.substr(1);//左侧的内容要从第二个开始截取到结束 覆盖住原来的；
+					//因为num1的数字是要实时变动的，所以应该放在定时器里。
+					num1.innerHTML = rightText.value.length;
+				},80)
+				
+			}
+
+			
+		</script>
+	</body>
+</html>
